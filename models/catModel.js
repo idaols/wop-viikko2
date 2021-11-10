@@ -5,7 +5,6 @@ const promisePool = pool.promise();
 
 const getAllCats = async (next) => {
   try {
-    // TODO: do the LEFT (or INNER) JOIN to get owner's name as ownername (from wop_user table).
     const [rows] = await promisePool.execute('SELECT * FROM wop_cat');
     return rows;
   } catch (e) {
@@ -14,10 +13,8 @@ const getAllCats = async (next) => {
   }
 };
 
-//Funktio, joka palauttaa yhden kissan id:n perusteella
 const getCat = async (id, next) => {
   try {
-    // TODO: do the LEFT (or INNER) JOIN to get owner's name as ownername (from wop_user table).
     const [rows] = await promisePool.execute('SELECT * FROM wop_cat WHERE cat_id = ?', [id]);
     return rows;
   } catch (e) {
@@ -36,8 +33,30 @@ const addCat = async (name, weight, owner, filename, birthdate, next) => {
   }
 };
 
+const modifyCat = async (name, weight, owner, birthdate, cat_id, next) => {
+  try {
+    const [rows] = await promisePool.execute('UPDATE wop_cat SET name = ?, weight = ?, owner = ?, birthdate = ? WHERE cat_id = ?;', [name, weight, owner, birthdate, cat_id]);
+    return rows;
+  } catch (e) {
+    console.error('addCat error', e.message);
+    next(httpError('Database error', 500));
+  }
+};
+
+const deleteCat = async (id, next) => {
+  try {
+    const [rows] = await promisePool.execute('DELETE FROM wop_cat WHERE cat_id = ?', [id]);
+    return rows;
+  } catch (e) {
+    console.error('deleteCat error', e.message);
+    next(httpError('Database error', 500));
+  }
+};
+
 module.exports = {
   getAllCats,
   getCat,
   addCat,
+  modifyCat,
+  deleteCat,
 };
