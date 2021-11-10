@@ -3,6 +3,7 @@
 
 const { getAllCats, getCat, addCat, modifyCat, deleteCat } = require("../models/catModel");
 const { httpError } = require("../utils/errors");
+const { validationResult } = require("express-validator");
 
 
 const cat_list_get = async (req, res, next) => {
@@ -35,8 +36,19 @@ const cat_get = async (req, res, next) => {
 
 
 const cat_post = async (req, res, next) => {
-  console.log(req.body, req.file);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('cat_post validation', errors.array());
+    next(httpError('Invalid data', 400));
+    return;
+  }
+  if (!req.file) {
+    const err = httpError('File not valid', 400);
+    next(err);
+    return;
+  }
   try {
+    console.log('Lomakkeesta', req.body);
     const { name, birthdate, weight, owner } = req.body;
     const tulos = await addCat(name, weight, owner, req.file.filename, birthdate, next);
     if (tulos.affectedRows > 0) {
@@ -54,8 +66,14 @@ const cat_post = async (req, res, next) => {
 };
 
 const cat_put = async (req, res, next) => {
-  console.log('cat_put', req.body);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('cat_put validation', errors.array());
+    next(httpError('Invalid data', 400));
+    return;
+  }
   try {
+    console.log('cat_put', req.body);
     const { name, birthdate, weight, owner, id } = req.body;
     const tulos = await modifyCat(name, weight, owner, birthdate, id, next);
     if (tulos.affectedRows > 0) {

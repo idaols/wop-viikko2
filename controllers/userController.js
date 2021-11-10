@@ -3,6 +3,7 @@
 
 const { getAllUsers, getUser, addUser } = require("../models/userModel");
 const { httpError } = require("../utils/errors");
+const { validationResult } = require("express-validator");
 
 
 const user_list_get = async (req, res, next) => {
@@ -38,10 +39,16 @@ const user_get = async (req, res, next) => {
 };
 
 const user_post = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('user_post validation', errors.array());
+    next(httpError('Invalid data', 400));
+    return;
+  }
   try {
     console.log('Lomakkeesta', req.body);
-    const { name, email, password } = req.body;
-    const tulos = await addUser(name, email, password, next);
+    const { name, email, passwd } = req.body;
+    const tulos = await addUser(name, email, passwd, next);
     if (tulos.affectedRows > 0) {
       res.json({
         message: "user added",
