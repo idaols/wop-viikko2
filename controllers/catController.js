@@ -74,9 +74,15 @@ const cat_put = async (req, res, next) => {
     return;
   }
   try {
-    console.log('cat_put', req.body);
     const { name, birthdate, weight } = req.body;
-    const tulos = await modifyCat(name, weight, req.user.user_id, birthdate, req.params.id, next);
+    /*let owner = req.user.user_id;
+    if (req.user.role === 0) {
+      owner = req.body.owner;
+    }*/
+    //tämä vastaa yllä olevaa if - lausetta
+    const owner = req.user.role === 0 ? req.body.owner : req.user.user_id;
+
+    const tulos = await modifyCat(name, weight, owner, birthdate, req.params.id, req.user.role, next);
     if (tulos.affectedRows > 0) {
       res.json({
         message: "cat modified",

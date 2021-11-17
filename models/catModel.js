@@ -33,9 +33,15 @@ const addCat = async (name, weight, owner, filename, birthdate, next) => {
   }
 };
 
-const modifyCat = async (name, weight, owner, birthdate, cat_id, next) => {
+const modifyCat = async (name, weight, owner, birthdate, cat_id, role, next) => {
+  let sql = 'UPDATE wop_cat SET name = ?, weight = ?, birthdate = ? WHERE cat_id = ? AND owner = ?';
+  let params = [name, weight, birthdate, cat_id, owner];
+  if (role === 0) {
+    sql = 'UPDATE wop_cat SET name = ?, weight = ?, birthdate = ?, owner = ? WHERE cat_id = ?';
+    params = [name, weight, birthdate, owner, cat_id];
+  }
   try {
-    const [rows] = await promisePool.execute('UPDATE wop_cat SET name = ?, weight = ?, birthdate = ? WHERE cat_id = ? AND owner = ?;', [name, weight, birthdate, cat_id, owner]);
+    const [rows] = await promisePool.execute(sql, params);
     return rows;
   } catch (e) {
     console.error('addCat error', e.message);
