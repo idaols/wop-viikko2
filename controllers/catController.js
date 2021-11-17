@@ -93,7 +93,7 @@ const cat_put = async (req, res, next) => {
 
 const cat_delete = async (req, res, next) => {
   try {
-    const vastaus = await deleteCat(req.params.id, req.user.user_id, next);
+    const vastaus = await deleteCat(req.params.id, req.user.user_id, req.user.role, next);
     if (vastaus.affectedRows > 0) {
       res.json({
         message: "cat deleted",
