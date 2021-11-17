@@ -16,20 +16,22 @@ const router = express.Router();
 
 router.route('/')
   .get(cat_list_get)
-  .post(upload.single("cat"),
+  .post(
+    upload.single("cat"),
     body('name').notEmpty().escape(),
     body('birthdate').isDate(),
     body('weight').isNumeric(),
-    body('owner').isNumeric(),
-    cat_post)
-  .put(body('name').notEmpty().escape(),
-    body('birthdate').isDate(),
-    body('weight').isNumeric(),
-    body('owner').isNumeric(),
-    cat_put);
+    cat_post
+  );
 
 router.route('/:id')
   .get(cat_get)
-  .delete(cat_delete);
+  .delete(cat_delete)
+  .put(
+    body('name').notEmpty().escape(),
+    body('birthdate').isDate(),
+    body('weight').isNumeric(),
+    cat_put
+  );
 
 module.exports = router;

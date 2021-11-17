@@ -5,7 +5,7 @@ const promisePool = pool.promise();
 
 const getAllCats = async (next) => {
   try {
-    const [rows] = await promisePool.execute('SELECT * FROM wop_cat');
+    const [rows] = await promisePool.execute('SELECT cat_id, wop_cat.name, weight, owner, filename, birthdate, wop_user.name as ownername FROM wop_cat JOIN wop_user ON wop_cat.owner = wop_user.user_id');
     return rows;
   } catch (e) {
     console.error('getAllCats error', e.message);
@@ -15,7 +15,7 @@ const getAllCats = async (next) => {
 
 const getCat = async (id, next) => {
   try {
-    const [rows] = await promisePool.execute('SELECT * FROM wop_cat WHERE cat_id = ?', [id]);
+    const [rows] = await promisePool.execute('SELECT cat_id, wop_cat.name, weight, owner, filename, birthdate, wop_user.name as ownername FROM wop_cat JOIN wop_user ON wop_cat.owner = wop_user.user_id WHERE cat_id = ?', [id]);
     return rows;
   } catch (e) {
     console.error('getCat error', e.message);
@@ -35,7 +35,7 @@ const addCat = async (name, weight, owner, filename, birthdate, next) => {
 
 const modifyCat = async (name, weight, owner, birthdate, cat_id, next) => {
   try {
-    const [rows] = await promisePool.execute('UPDATE wop_cat SET name = ?, weight = ?, owner = ?, birthdate = ? WHERE cat_id = ?;', [name, weight, owner, birthdate, cat_id]);
+    const [rows] = await promisePool.execute('UPDATE wop_cat SET name = ?, weight = ?, birthdate = ? WHERE cat_id = ? AND owner = ?;', [name, weight, birthdate, cat_id, owner]);
     return rows;
   } catch (e) {
     console.error('addCat error', e.message);
@@ -43,9 +43,9 @@ const modifyCat = async (name, weight, owner, birthdate, cat_id, next) => {
   }
 };
 
-const deleteCat = async (id, next) => {
+const deleteCat = async (id, owner_id, next) => {
   try {
-    const [rows] = await promisePool.execute('DELETE FROM wop_cat WHERE cat_id = ?', [id]);
+    const [rows] = await promisePool.execute('DELETE FROM wop_cat WHERE cat_id = ? AND owner = ?', [id, owner_id]);
     return rows;
   } catch (e) {
     console.error('deleteCat error', e.message);
