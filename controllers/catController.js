@@ -5,6 +5,7 @@ const { getAllCats, getCat, addCat, modifyCat, deleteCat } = require("../models/
 const { httpError } = require("../utils/errors");
 const { validationResult } = require("express-validator");
 const { makeThumbnail } = require("../utils/resize");
+const { getCoordinates } = require("../utils/imageMeta");
 
 
 const cat_list_get = async (req, res, next) => {
@@ -49,10 +50,18 @@ const cat_post = async (req, res, next) => {
     next(err);
     return;
   }
+
+  try {
+    const coords = await getCoordinates(req.file.path);
+    req.body.coords = coords;
+  } catch (e) {
+    req.body.coords = [24.74, 60.24];
+  }
+
   try {
     const thumb = await makeThumbnail(req.file.path, './thumbnails/' + req.file.filename);
-    const { name, birthdate, weight } = req.body;
-    const tulos = await addCat(name, weight, req.user.user_id, req.file.filename, birthdate, next);
+    const { name, birthdate, weight, coords } = req.body;
+    const tulos = await addCat(name, weight, req.user.user_id, req.file.filename, birthdate, JSON.stringify(coords), next);
     if (thumb) {
       if (tulos.affectedRows > 0) {
         res.json({
